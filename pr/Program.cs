@@ -1,72 +1,80 @@
 ﻿namespace pr
 {
-
-
-
     internal class Program
     {
+        class SurnameException : Exception 
+        {
+            public string Name { get; set; }
+            public SurnameException(string name) : base($"Неверное имя: {name}") // выводится вместо ex.Message в блоке catch для понимания 
+            {
+                Name = name;
+            }
+        }
 
         static void Main(string[] args)
         {
-
-            NumberReader nr = new NumberReader();
-            nr.NumberEneteredEvent += ShowNumber;
-
-            while (true)
+            try
             {
-                try
+                Console.WriteLine("Введите имя пользователя");
+                string UserName = Console.ReadLine();
+                if (!IsValidName(UserName))
                 {
-                    nr.Read();
+                    throw new SurnameException(UserName);
                 }
-
-                catch (FormatException)
+                else if(UserName.Length > 10)
                 {
-                    Console.WriteLine("Введено некорректное значение");
+                    throw new IndexOutOfRangeException();
+                }
+                else if(UserName == null)
+                {
+                    throw new ArgumentNullException();
+                }
+                else if(UserName == "")
+                {
+                    throw new ArgumentException();
+                }
+                else
+                {
+                    Console.WriteLine("Имя успешно введено");
                 }
             }
-            
-        }
 
-        public static void ShowNumber(int number)
-        {
-            switch (number)
+            catch(SurnameException ex) 
             {
-                case 1:
-                    Console.WriteLine("1");
-                    break;
-                case 2:
-                    Console.WriteLine("2");
-                    break;
+                Console.WriteLine(ex.Message);
+            }
+            catch(IndexOutOfRangeException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            catch (ArgumentNullException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                Console.WriteLine("Проверка завершена");
             }
         }
-       
 
-        
-    }
-
-    class NumberReader
-    {
-
-        public delegate void NumberEneteredDelegate(int number);
-        public event NumberEneteredDelegate NumberEneteredEvent;
-
-
-        public void Read()
-        {
-            Console.WriteLine("Нужно ввести значение 1 или 2");
-            int number = int.Parse(Console.ReadLine());
-            if(number != 1 && number != 2)
+       public static bool IsValidName(string UserName) // проверка на буквы в введенном значении 
+       {
+            foreach(char us in UserName)
             {
-                throw new FormatException();
+                if (!Char.IsLetter(us))
+                {
+                    return false; // если есть не буква 
+                }
             }
-            NumberEntered(number);
-
-        }
-
-        protected virtual void NumberEntered(int nubmer)
-        {
-            NumberEneteredEvent?.Invoke(nubmer);
-        }
-
+            return true; // если все буквы
+       }
     }
 }
